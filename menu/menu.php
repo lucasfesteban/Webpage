@@ -1,7 +1,6 @@
 <?php
 header('Content-Type: application/json');
 
-// Ruta del archivo donde se almacenan los datos
 $dataFile = 'ipvoto.txt';
 
 // Leer los datos existentes
@@ -19,18 +18,15 @@ if (file_exists($dataFile)) {
     $startTime = file_exists('timer.txt') ? (int)file_get_contents('timer.txt') : null;
 }
 
-// Obtener la IP del usuario
 $userIp = $_SERVER['REMOTE_ADDR'];
-$currentTime = time(); // Tiempo actual en segundos
+$currentTime = time();
 
-// Configuración del temporizador
-$executionTime = 60; // Tiempo de ejecución en segundos (1 minuto)
-$cooldownTime = 30; // Tiempo de cooldown en segundos
+$executionTime = 60;
+$cooldownTime = 30;
 $state = 'Inactivo';
 $timeLeft = 0;
 $canVote = true;
 
-// Determinar el estado y el tiempo restante
 if ($startTime) {
     if ($currentTime - $startTime < $executionTime) {
         $state = 'Ejecución';
@@ -50,7 +46,6 @@ if ($startTime) {
     }
 }
 
-// Manejo de votos
 $response = ['success' => false, 'message' => '', 'state' => $state, 'votes' => $votos, 'timeLeft' => $timeLeft];
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $canVote) {
     if (array_key_exists($userIp, $ips)) {

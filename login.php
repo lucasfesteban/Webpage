@@ -1,55 +1,45 @@
 <?php
 session_start();
 
-// Configuración inicial
-$maxIntentos = 3;            // Máximo de intentos antes de bloqueo
-$bloqueoDuracion = 300;      // Duración del bloqueo en segundos (5 minutos)
-$claveArchivo = "clave.txt"; // Archivo donde se guarda la clave
-$intentosArchivo = "intentos.txt"; // Archivo para registrar intentos fallidos
+$maxIntentos = 3;
+$bloqueoDuracion = 300;
+$claveArchivo = "clave.txt";
+$intentosArchivo = "intentos.txt";
 
-// Leer la clave desde clave.txt
 if (!file_exists($claveArchivo)) {
     die("Error: El archivo de clave no existe.");
 }
 $claveCorrecta = trim(file_get_contents($claveArchivo));
 
-// Obtener IP del usuario
 $userIP = $_SERVER['REMOTE_ADDR'];
 
-// Cargar intentos fallidos desde intentos.txt
 $intentos = [];
 if (file_exists($intentosArchivo)) {
     $contenido = file_get_contents($intentosArchivo);
     $intentos = json_decode($contenido, true) ?: [];
 }
 
-// Inicializar datos para la IP si no existen
 if (!isset($intentos[$userIP])) {
     $intentos[$userIP] = ['fallidos' => 0, 'bloqueoHasta' => 0];
 }
 
-// Determinar si la IP está bloqueada
 $tiempoBloqueoRestante = max(0, $intentos[$userIP]['bloqueoHasta'] - time());
 $estaBloqueado = $tiempoBloqueoRestante > 0;
 
-// Verificar el formulario de envío
 $error = "";
 if ($_SERVER["REQUEST_METHOD"] === "POST" && !$estaBloqueado) {
     $claveUnica = $_POST['clave_unica'] ?? '';
 
     if ($claveUnica === $claveCorrecta) {
-        // Restablecer intentos fallidos si es correcto
         unset($intentos[$userIP]);
         file_put_contents($intentosArchivo, json_encode($intentos));
         echo "<p>¡Inicio de sesión exitoso!</p>";
         header("location: /menu/menu1.php");
 	exit;
     } else {
-        // Incrementar intentos fallidos
         $intentos[$userIP]['fallidos']++;
 
         if ($intentos[$userIP]['fallidos'] >= $maxIntentos) {
-            // Bloquear la IP si se exceden los intentos
             $intentos[$userIP]['bloqueoHasta'] = time() + $bloqueoDuracion;
             $estaBloqueado = true;
             $tiempoBloqueoRestante = $bloqueoDuracion;
@@ -84,7 +74,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !$estaBloqueado) {
             align-items: center;
         }
 
-        /* Bubbles Animation */
         .bubbles {
             position: absolute;
             top: 0;
@@ -100,7 +89,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !$estaBloqueado) {
             bottom: -150px;
             width: calc(30px + 70px * var(--scale));
             height: calc(30px + 70px * var(--scale));
-            background: rgba(255, 255, 255, 0.4); /* More opaque */
+            background: rgba(255, 255, 255, 0.4);
             border-radius: 50%;
             animation: rise calc(8s + 5s * var(--scale)) infinite ease-in-out;
             animation-delay: calc(-5s * var(--delay));
@@ -118,7 +107,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !$estaBloqueado) {
             }
         }
 
-        /* Form Container */
         form {
             background: rgba(255, 255, 255, 0.8);
             padding: 60px;
@@ -169,7 +157,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !$estaBloqueado) {
             transform: scale(1.1);
         }
 
-        /* Error Messages */
         .error {
             color: red;
             margin-top: 20px;
@@ -202,7 +189,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !$estaBloqueado) {
             }
         }
 
-        /* Overlay Styles */
         #bloqueo-overlay {
             position: fixed;
             top: 0;
@@ -250,15 +236,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !$estaBloqueado) {
     <!-- Bubble Animation -->
     <div class="bubbles">
         <script>
-            // Generate random bubbles
             const bubbleContainer = document.querySelector('.bubbles');
-            const numBubbles = 15; // Number of bubbles
+            const numBubbles = 15;
             for (let i = 0; i < numBubbles; i++) {
                 const bubble = document.createElement('div');
                 bubble.classList.add('bubble');
-                bubble.style.setProperty('--x-pos', Math.random()); // Random horizontal position
-                bubble.style.setProperty('--scale', Math.random()); // Random size
-                bubble.style.setProperty('--delay', Math.random()); // Random delay
+                bubble.style.setProperty('--x-pos', Math.random());
+                bubble.style.setProperty('--scale', Math.random());
+                bubble.style.setProperty('--delay', Math.random());
                 bubbleContainer.appendChild(bubble);
             }
         </script>
@@ -299,7 +284,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !$estaBloqueado) {
         if (errorElem) {
             setTimeout(() => {
                 errorElem.classList.add("fade-out");
-            }, 3000); // Desaparece después de 3 segundos
+            }, 3000);
         }
     </script>
 </body>
